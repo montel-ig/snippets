@@ -34,11 +34,11 @@ class SnapShotsVerifier:
     SNAPSHOTS_CONF = {
         DB_POSTGRES: {
             'folder': os.environ.get('POSTGRES_S3_PREFIX', 'iddatabase-pro/snapshots/'),
-            'interval': datetime.timedelta(hours=1)
+            'interval': datetime.timedelta(hours=1, minutes=15)
         },
         DB_CASSANDRA: {
             'folder': os.environ.get('CASSANDRA_S3_PREFIX', 'cassandra-pro/iddatabase/cassandra/pmid/97c9af/'),
-            'interval': datetime.timedelta(days=1)
+            'interval': datetime.timedelta(days=1, minutes=15)
         }
     }
 
@@ -65,7 +65,7 @@ class SnapShotsVerifier:
         )
         latest = dict(LastModified=pytz.utc.localize(datetime.datetime.min))
         now = datetime.datetime.now(tz=pytz.utc)
-        time_to_check = now - datetime.timedelta(minutes=15)
+        time_to_check = now - self.SNAPSHOTS_CONF[db_type]['interval']
         for page in page_iterator:
             for content in page['Contents']:
                 if latest['LastModified'] < content['LastModified']:
