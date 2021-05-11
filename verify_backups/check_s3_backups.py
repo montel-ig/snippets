@@ -26,6 +26,7 @@ class SnapShotsVerifier:
     S3_REGION = 'eu-north-1'
     GENIE_URL = 'https://api.opsgenie.com/v2/alerts'
     GENIE_ALERT_TAGS = ['PM Customer']
+    GENIE_ENTITY = 'PackageMedia'
     DEFAULT_MESSAGE = 'ALARM: "PM database snapshot is not updated on s3"'
     ALERT_PRIORITY = 'P1'
     MONTEL_CARE_EMAIL = 'doesnotreply@montel.fi'
@@ -89,6 +90,7 @@ class SnapShotsVerifier:
                 priority=self.ALERT_PRIORITY,
                 description=self.description,
                 tags=self.GENIE_ALERT_TAGS,
+                entity=self.GENIE_ENTITY,
                 responders=[{'name': self.GENIE_TEAM, 'type': 'team'}]
             )),
             headers=headers
