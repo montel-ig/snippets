@@ -4,9 +4,7 @@ import logging
 import requests
 import os
 import sys
-import dns
-
-from dns import resolver
+import dns.resolver
 
 logging.basicConfig(level=logging.INFO)
 
@@ -28,26 +26,24 @@ class DNSVerifier:
     MONTEL_CARE_EMAIL = 'doesnotreply@montel.fi'
     EMAIL_RECIPIENTS = ['arslan@montel.fi', 'toni@montel.fi', 'alvaro@packagemedia.fi']
 
-    def verify_dns(self, dns_list: str) -> None:
+    @staticmethod
+    def verify_dns(dns_list: str) -> None:
         dns_resolver = dns.resolver.Resolver()
         names = dns_list.split(',')
-        res = resolver.Resolver()
-        dns_resolver.nameservers
+
         for name in names:
             logging.info('Checking....{}'.format(name))
             try:
-                answers = res.query(name)
-                logging.info(answers.response.sections)
+                answers = dns_resolver.resolve(name)
+                logging.info(answers.rrset)
             except (dns.resolver.NoAnswer, dns.resolver.LifetimeTimeout, dns.resolver.NoNameservers):
                 for i in range(3):
                     try:
-                        answers = res.query(name)
+                        dns_resolver.resolve(name)
                         time.sleep(5)
                     except (dns.resolver.NoAnswer, dns.resolver.LifetimeTimeout, dns.resolver.NoNameservers):
                         if i == 2:
                             logging.error('Error: ', name)
-                            #self.post_alert()
-                            #self.send_email()
 
     def post_alert(self) -> None:
         logging.info(f'Posting alert on opsgenie...')
@@ -94,4 +90,3 @@ def run(dns_list: str) -> None:
 if __name__ == '__main__':
     dns_list = sys.argv[1]
     run(dns_list)
-
