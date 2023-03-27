@@ -25,9 +25,9 @@ class DNSVerifier:
     ALERT_PRIORITY = 'P1'
     MONTEL_CARE_EMAIL = 'doesnotreply@montel.fi'
     EMAIL_RECIPIENTS = ['arslan@montel.fi', 'toni@montel.fi', 'alvaro@packagemedia.fi']
+    DESCRIPTION = 'Node cannot resolve DNS'
 
-    @staticmethod
-    def verify_dns(dns_list: str) -> None:
+    def verify_dns(self, dns_list: str) -> None:
         dns_resolver = dns.resolver.Resolver()
         names = dns_list.split(',')
 
@@ -44,6 +44,8 @@ class DNSVerifier:
                     except (dns.resolver.NoAnswer, dns.resolver.LifetimeTimeout, dns.resolver.NoNameservers):
                         if i == 2:
                             logging.error('Error: ', name)
+                            self.post_alert()
+                            self.send_email()
 
     def post_alert(self) -> None:
         logging.info(f'Posting alert on opsgenie...')
@@ -53,7 +55,7 @@ class DNSVerifier:
             data=json.dumps(dict(
                 message=self.DEFAULT_MESSAGE,
                 priority=self.ALERT_PRIORITY,
-                description='Node cannot resolve DNS',
+                description=self.DESCRIPTION,
                 tags=self.GENIE_ALERT_TAGS,
                 entity=self.GENIE_ENTITY,
                 responders=[{'name': self.GENIE_TEAM, 'type': 'team'}]
@@ -74,7 +76,7 @@ class DNSVerifier:
                 'from': self.MONTEL_CARE_EMAIL,
                 'to': self.EMAIL_RECIPIENTS,
                 'subject': self.DEFAULT_MESSAGE,
-                'text': self.description
+                'text': self.DESCRIPTION
             }
         )
         logging.info(
