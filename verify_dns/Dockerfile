@@ -18,5 +18,7 @@ RUN pip install requests dnspython==2.2.1 && \
 
 # clean up a bit
 RUN apt-get -y clean
+RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/check_dns.py
 
 CMD /usr/bin/watch --interval 900 --exec python check_dns.py www.google.com

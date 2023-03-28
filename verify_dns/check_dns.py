@@ -25,7 +25,10 @@ class DNSVerifier:
     ALERT_PRIORITY = 'P1'
     MONTEL_CARE_EMAIL = 'doesnotreply@montel.fi'
     EMAIL_RECIPIENTS = ['arslan@montel.fi', 'toni@montel.fi', 'alvaro@packagemedia.fi']
-    DESCRIPTION = 'Node cannot resolve DNS'
+    DESCRIPTION = 'Node cannot resolve DNS on node with IP: {node_ip}'
+
+    def __init__(self):
+        self.machine_ip = None
 
     def verify_dns(self, dns_list: str) -> None:
         dns_resolver = dns.resolver.Resolver()
@@ -55,7 +58,7 @@ class DNSVerifier:
             data=json.dumps(dict(
                 message=self.DEFAULT_MESSAGE,
                 priority=self.ALERT_PRIORITY,
-                description=self.DESCRIPTION,
+                description=self.DESCRIPTION.format(node_ip=os.environ.get('NODE_IP')),
                 tags=self.GENIE_ALERT_TAGS,
                 entity=self.GENIE_ENTITY,
                 responders=[{'name': self.GENIE_TEAM, 'type': 'team'}]
@@ -76,7 +79,7 @@ class DNSVerifier:
                 'from': self.MONTEL_CARE_EMAIL,
                 'to': self.EMAIL_RECIPIENTS,
                 'subject': self.DEFAULT_MESSAGE,
-                'text': self.DESCRIPTION
+                'text': self.DESCRIPTION.format(node_ip=os.environ.get('NODE_IP')),
             }
         )
         logging.info(
