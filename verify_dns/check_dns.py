@@ -43,7 +43,7 @@ class DNSVerifier:
                 for i in range(3):
                     try:
                         dns_resolver.resolve(name)
-                        time.sleep(5)
+                        time.sleep(60)
                     except (dns.resolver.NoAnswer, dns.resolver.LifetimeTimeout, dns.resolver.NoNameservers):
                         if i == 2:
                             logging.error('Error: ', name)
